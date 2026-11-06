@@ -1,0 +1,28 @@
+rules_version = '2';
+
+// Reglas de seguridad para la app de facturación de agua.
+// Pégalas en Firebase Console → Firestore Database → Reglas → Publicar.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Solo los correos de esta lista pueden leer y escribir.
+    // Cambia los correos por los de las personas que manejan la facturación.
+    function autorizado() {
+      return request.auth != null
+        && request.auth.token.email in [
+          'correo1@ejemplo.com',
+          'correo2@ejemplo.com'
+        ];
+    }
+
+    match /config/{doc} {
+      allow read, write: if autorizado();
+    }
+    match /suscriptores/{doc} {
+      allow read, write: if autorizado();
+    }
+    match /periodos/{doc} {
+      allow read, write: if autorizado();
+    }
+  }
+}
